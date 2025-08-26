@@ -1,0 +1,71 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class EllipsePointChecker {
+    public static void main(String[] args) {
+        // Проверяем количество аргументов
+        if (args.length != 2) {
+            System.out.println("Ошибка: нужно указать два файла!");
+            System.out.println("Первый аргумент: файл с параметрами эллипса");
+            System.out.println("Второй аргумент: файл с координатами точек");
+            return;
+        }
+
+        try {
+            // Читаем параметры эллипса из первого файла
+            BufferedReader ellipseReader = new BufferedReader(new FileReader(args[0]));
+            String[] centerCoords = ellipseReader.readLine().split(" ");
+            String[] radiusCoords = ellipseReader.readLine().split(" ");
+            ellipseReader.close();
+
+            // Парсим координаты центра
+            double centerX = Double.parseDouble(centerCoords[0]);
+            double centerY = Double.parseDouble(centerCoords[1]);
+            
+            // Парсим радиусы
+            double radiusX = Double.parseDouble(radiusCoords[0]);
+            double radiusY = Double.parseDouble(radiusCoords[1]);
+
+            // Читаем точки из второго файла
+            BufferedReader pointsReader = new BufferedReader(new FileReader(args[1]));
+            String line;
+            
+            // Обрабатываем каждую точку
+            while ((line = pointsReader.readLine()) != null) {
+                String[] pointCoords = line.split(" ");
+                double pointX = Double.parseDouble(pointCoords[0]);
+                double pointY = Double.parseDouble(pointCoords[1]);
+                
+                // Проверяем положение точки и выводим результат
+                System.out.println(checkPointPosition(centerX, centerY, radiusX, radiusY, pointX, pointY));
+            }
+            pointsReader.close();
+            
+        } catch (IOException e) {
+            System.out.println("Ошибка чтения файла: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Ошибка: " + e.getMessage());
+        }
+    }
+
+    // Проверяем положение точки относительно эллипса
+    private static int checkPointPosition(double centerX, double centerY, 
+                                         double radiusX, double radiusY, 
+                                         double pointX, double pointY) {
+        // Вычисляем значение по формуле эллипса
+        double value = Math.pow((pointX - centerX) / radiusX, 2) 
+                     + Math.pow((pointY - centerY) / radiusY, 2);
+        
+        // Сравниваем с единицей с учетом погрешности
+        final double EPSILON = 1e-10; // Маленькое число для сравнения
+        
+        if (Math.abs(value - 1.0) < EPSILON) {
+            return 0; // На эллипсе
+        } else if (value < 1.0) {
+            return 1; // Внутри
+        } else {
+            return 2; // Снаружи
+        }
+    }
+}
